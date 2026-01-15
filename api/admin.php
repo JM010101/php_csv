@@ -1,9 +1,19 @@
 <?php
-// Enable error reporting for debugging (remove in production)
+// Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+
+// Test if page is loading
+echo "<!-- Admin page loading -->\n";
 
 require_once 'functions.php';
+
+// Check if constants are defined
+if (!defined('ROLE_ADMIN')) {
+    die('Error: ROLE_ADMIN constant not defined. Check config.php');
+}
+
 requireRole([ROLE_ADMIN]);
 
 $page = $_GET['page'] ?? 'dashboard';
@@ -115,8 +125,20 @@ $filters = [
     'date_to' => $_GET['date_to'] ?? ''
 ];
 
-$timeRecords = getTimeRecords($filters);
-$users = getAllUsers();
+// Get data with error handling
+try {
+    $timeRecords = getTimeRecords($filters);
+} catch (Exception $e) {
+    $timeRecords = [];
+    error_log('Error getting time records: ' . $e->getMessage());
+}
+
+try {
+    $users = getAllUsers();
+} catch (Exception $e) {
+    $users = [];
+    error_log('Error getting users: ' . $e->getMessage());
+}
 
 // Handle CSV export
 if (isset($_GET['export'])) {
@@ -146,19 +168,21 @@ if (isset($_GET['export'])) {
     <div class="container">
         <div class="admin-box">
             <h1>Admin Dashboard</h1>
-            <p>Welcome, <?php echo htmlspecialchars($_SESSION['name']); ?></p>
+            <p>Welcome, <?php echo htmlspecialchars($_SESSION['name'] ?? 'Admin'); ?></p>
             
             <?php 
             // Display first admin credentials if this is the default admin
-            $allUsers = getAllUsers();
-            $firstAdmin = null;
-            foreach ($allUsers as $user) {
-                if ($user['role'] == ROLE_ADMIN) {
-                    $firstAdmin = $user;
-                    break;
+            try {
+                $allUsers = getAllUsers();
+                $firstAdmin = null;
+                foreach ($allUsers as $user) {
+                    if (isset($user['role']) && $user['role'] == ROLE_ADMIN) {
+                        $firstAdmin = $user;
+                        break;
+                    }
                 }
-            }
-            if ($firstAdmin && $firstAdmin['userid'] == 'admin@timeclock.local' && $firstAdmin['password'] == '1234'): 
+                if ($firstAdmin && isset($firstAdmin['userid']) && isset($firstAdmin['password']) && 
+                    $firstAdmin['userid'] == 'admin@timeclock.local' && $firstAdmin['password'] == '1234'): 
             ?>
                 <div class="message success" style="margin-bottom: 20px;">
                     <h3 style="margin-bottom: 10px;">Default Admin Credentials</h3>
