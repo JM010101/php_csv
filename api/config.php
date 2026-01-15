@@ -1,6 +1,8 @@
 <?php
 // Configuration file
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Determine if running on Vercel (serverless environment)
 // Vercel sets VERCEL=1 and VERCEL_ENV environment variables

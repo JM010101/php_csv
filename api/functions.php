@@ -28,14 +28,21 @@ function isLoggedIn() {
 
 // Check session timeout for Admin and Manager
 function checkSessionTimeout() {
-    if (isset($_SESSION['last_activity'])) {
-        if (time() - $_SESSION['last_activity'] > SESSION_TIMEOUT) {
-            if ($_SESSION['role'] == ROLE_ADMIN || $_SESSION['role'] == ROLE_MANAGER) {
-                logout();
-                return false;
-            }
+    if (!isset($_SESSION['last_activity'])) {
+        $_SESSION['last_activity'] = time();
+        return true;
+    }
+    
+    // Check if session has timed out
+    if (time() - $_SESSION['last_activity'] > SESSION_TIMEOUT) {
+        if (isset($_SESSION['role']) && ($_SESSION['role'] == ROLE_ADMIN || $_SESSION['role'] == ROLE_MANAGER)) {
+            // Clear session but don't redirect here (let requireRole handle it)
+            session_unset();
+            session_destroy();
+            return false;
         }
     }
+    
     $_SESSION['last_activity'] = time();
     return true;
 }
@@ -529,16 +536,23 @@ function logout() {
 
 // Require specific role
 function requireRole($allowedRoles) {
+    // Check if user is logged in
     if (!isLoggedIn()) {
         header('Location: /');
         exit;
     }
     
-    if (!in_array($_SESSION['role'], $allowedRoles)) {
+    // Check session timeout first (may clear session)
+    $sessionValid = checkSessionTimeout();
+    if (!$sessionValid) {
         header('Location: /');
         exit;
     }
     
-    checkSessionTimeout();
+    // Check if user has required role
+    if (!in_array($_SESSION['role'], $allowedRoles)) {
+        header('Location: /');
+        exit;
+    }
 }
 ?>
