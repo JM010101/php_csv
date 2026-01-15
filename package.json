@@ -1,0 +1,16 @@
+{
+  "name": "time-clock-system",
+  "version": "1.0.0",
+  "description": "PHP Time Clock System for Vercel",
+  "scripts": {
+    "deploy": "vercel",
+    "deploy:prod": "vercel --prod"
+  },
+  "keywords": [
+    "time-clock",
+    "php",
+    "vercel"
+  ],
+  "author": "",
+  "license": "MIT"
+}

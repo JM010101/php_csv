@@ -35,10 +35,12 @@ A simple PHP-based time clock application with CSV file storage. This system all
 ## Requirements
 
 - PHP 7.0 or higher
-- Web server (Apache, Nginx, or PHP built-in server)
-- Write permissions for the `data` directory
+- Web server (Apache, Nginx, or PHP built-in server) **OR** Vercel account for serverless deployment
+- Write permissions for the `data` directory (traditional hosting) or `/tmp` directory (Vercel)
 
 ## Installation
+
+### Option 1: Traditional Web Server
 
 1. Upload all files to your web server directory
 
@@ -52,6 +54,39 @@ A simple PHP-based time clock application with CSV file storage. This system all
    ```
    http://your-domain/index.php
    ```
+
+### Option 2: Vercel Deployment (Serverless)
+
+1. **Install Vercel CLI** (if not already installed):
+   ```bash
+   npm i -g vercel
+   ```
+
+2. **Login to Vercel**:
+   ```bash
+   vercel login
+   ```
+
+3. **Deploy the application**:
+   ```bash
+   vercel
+   ```
+   
+   Follow the prompts to link your project.
+
+4. **For production deployment**:
+   ```bash
+   vercel --prod
+   ```
+
+5. **Access your application** at the URL provided by Vercel.
+
+**Important Notes for Vercel:**
+- The application automatically detects Vercel environment and uses `/tmp` directory for data storage
+- Data stored in `/tmp` is **ephemeral** - it persists during function execution but may be cleared between deployments
+- For production use on Vercel, consider migrating to a persistent database (e.g., Vercel Postgres, Supabase, or external database)
+- Sessions work across function invocations within the same execution environment
+- The application will automatically create necessary directories and files on first run
 
 ## Initial Setup
 

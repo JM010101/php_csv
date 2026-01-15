@@ -1,0 +1,24 @@
+# Data files (should not be committed)
+data/
+/tmp/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Vercel
+.vercel
+
+# Environment files
+.env
+.env.local
