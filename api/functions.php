@@ -23,6 +23,10 @@ function getClientIP() {
 
 // Check if user is logged in
 function isLoggedIn() {
+    // Ensure session is started
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
     return isset($_SESSION['userid']) && isset($_SESSION['role']);
 }
 
@@ -536,6 +540,11 @@ function logout() {
 
 // Require specific role
 function requireRole($allowedRoles) {
+    // Ensure session is started
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
     // Check if user is logged in
     if (!isLoggedIn()) {
         header('Location: /');
@@ -550,7 +559,7 @@ function requireRole($allowedRoles) {
     }
     
     // Check if user has required role
-    if (!in_array($_SESSION['role'], $allowedRoles)) {
+    if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $allowedRoles)) {
         header('Location: /');
         exit;
     }
