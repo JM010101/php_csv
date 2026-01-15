@@ -1,6 +1,27 @@
 <?php
 require_once 'functions.php';
-requireRole([ROLE_EMPLOYEE]);
+
+// Check authentication - allow employee access
+if (!isLoggedIn()) {
+    header('Location: /?error=not_logged_in');
+    exit;
+}
+
+// Check role - redirect if not employee
+if (!isset($_SESSION['role']) || $_SESSION['role'] != ROLE_EMPLOYEE) {
+    // If admin or manager, redirect to their page
+    if (isset($_SESSION['role'])) {
+        if ($_SESSION['role'] == ROLE_ADMIN) {
+            header('Location: /admin.php');
+            exit;
+        } elseif ($_SESSION['role'] == ROLE_MANAGER) {
+            header('Location: /manager.php');
+            exit;
+        }
+    }
+    header('Location: /?error=invalid_role');
+    exit;
+}
 
 $userid = $_SESSION['userid'];
 $name = $_SESSION['name'];
