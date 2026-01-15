@@ -128,24 +128,26 @@ Alternatively, you can use the admin interface to create users after logging in 
 
 ## Usage
 
-### Employee Login
-1. Go to the login page
-2. Enter your email (userid) and 4-digit password
-3. You'll be taken to the clock in/out screen
-4. Click "CLOCK IN" or "CLOCK OUT" as needed
-5. The screen will show a confirmation message for 5 seconds, then auto-logout
+For detailed usage instructions, see **[USER_GUIDE.md](USER_GUIDE.md)**.
 
-### Manager Login
-1. Login with manager credentials
-2. View the list of currently clocked-in employees
-3. The page auto-refreshes every 30 seconds
+### Quick Start
 
-### Admin Login
-1. Login with admin credentials
-2. Access three main sections:
-   - **Time Records**: View, filter, search, add, edit, delete time records. Export to CSV.
+**Employee:**
+1. Login at `/` with your email and 4-digit password
+2. Click "CLOCK IN" or "CLOCK OUT" as needed
+3. Confirmation shows for 5 seconds, then auto-logout
+
+**Manager:**
+1. Login at `/` with manager credentials
+2. View currently clocked-in employees
+3. Page auto-refreshes every 30 seconds
+
+**Admin:**
+1. Access `/admin.php` (or login at `/`)
+2. Three main sections:
+   - **Time Records**: View, filter, search, sort, add, edit, delete time records. Export to CSV.
    - **Users**: Manage users, set schedules, clone user profiles
-   - **Payroll**: Generate payroll reports with date range filtering
+   - **Payroll**: Generate payroll reports with date range filtering and subtotals
 
 ## File Structure
 

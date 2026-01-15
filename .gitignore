@@ -11,7 +11,6 @@ Thumbs.db
 desktop.ini
 
 # IDE files
-.vscode/
 .idea/
 *.swp
 *.swo
@@ -22,3 +21,7 @@ desktop.ini
 # Environment files
 .env
 .env.local
+temp_auto_push.bat
+temp_interactive_push.bat
+.gitignore
+branch_structure.json
