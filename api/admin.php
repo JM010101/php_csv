@@ -233,15 +233,15 @@ if (isset($_GET['export'])) {
                     </div>
                     
                     <div class="table-container">
-                        <table class="data-table">
+                        <table class="data-table" id="timeRecordsTable">
                             <thead>
                                 <tr>
-                                    <th>User ID</th>
-                                    <th>Name</th>
-                                    <th>Date</th>
-                                    <th>Clock In</th>
-                                    <th>Clock Out</th>
-                                    <th>Hours</th>
+                                    <th onclick="sortTable(0)">User ID ↕</th>
+                                    <th onclick="sortTable(1)">Name ↕</th>
+                                    <th onclick="sortTable(2)">Date ↕</th>
+                                    <th onclick="sortTable(3)">Clock In ↕</th>
+                                    <th onclick="sortTable(4)">Clock Out ↕</th>
+                                    <th onclick="sortTable(5)">Hours ↕</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -722,6 +722,65 @@ if (isset($_GET['export'])) {
                 }
                 tr[i].style.display = found ? '' : 'none';
             }
+        }
+        
+        // Table sorting function
+        let sortDirection = {};
+        function sortTable(columnIndex) {
+            const table = document.getElementById('timeRecordsTable');
+            if (!table) return;
+            
+            const tbody = table.querySelector('tbody');
+            if (!tbody) return;
+            
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            if (rows.length === 0) return;
+            
+            // Toggle sort direction
+            if (!sortDirection[columnIndex]) {
+                sortDirection[columnIndex] = 'asc';
+            } else {
+                sortDirection[columnIndex] = sortDirection[columnIndex] === 'asc' ? 'desc' : 'asc';
+            }
+            
+            const direction = sortDirection[columnIndex] === 'asc' ? 1 : -1;
+            
+            rows.sort((a, b) => {
+                const aText = a.cells[columnIndex] ? a.cells[columnIndex].textContent.trim() : '';
+                const bText = b.cells[columnIndex] ? b.cells[columnIndex].textContent.trim() : '';
+                
+                // Try to parse as number for Hours column
+                if (columnIndex === 5) {
+                    const aNum = parseFloat(aText) || 0;
+                    const bNum = parseFloat(bText) || 0;
+                    return (aNum - bNum) * direction;
+                }
+                
+                // For dates, compare as dates
+                if (columnIndex === 2) {
+                    const aDate = new Date(aText);
+                    const bDate = new Date(bText);
+                    return (aDate - bDate) * direction;
+                }
+                
+                // String comparison
+                return aText.localeCompare(bText) * direction;
+            });
+            
+            // Remove all rows and re-append in sorted order
+            rows.forEach(row => tbody.removeChild(row));
+            rows.forEach(row => tbody.appendChild(row));
+            
+            // Update header arrows
+            const headers = table.querySelectorAll('th');
+            headers.forEach((header, index) => {
+                if (index === columnIndex) {
+                    header.innerHTML = header.textContent.replace(/↕|↑|↓/g, '').trim() + 
+                        (sortDirection[columnIndex] === 'asc' ? ' ↑' : ' ↓');
+                } else if (index < 6) {
+                    header.innerHTML = header.textContent.replace(/↕|↑|↓/g, '').trim() + ' ↕';
+                }
+            });
         }
         
         window.onclick = function(event) {
