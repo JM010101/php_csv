@@ -3,7 +3,10 @@
 session_start();
 
 // Determine if running on Vercel (serverless environment)
-$isVercel = isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']);
+// Vercel sets VERCEL=1 and VERCEL_ENV environment variables
+$isVercel = isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || 
+            isset($_ENV['VERCEL_ENV']) || isset($_SERVER['VERCEL_ENV']) ||
+            (isset($_SERVER['HTTP_X_VERCEL_ID']) && !empty($_SERVER['HTTP_X_VERCEL_ID']));
 $dataDir = $isVercel ? '/tmp/timeclock' : 'data';
 
 // CSV file paths
