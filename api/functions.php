@@ -30,6 +30,11 @@ function isLoggedIn() {
 
 // Check session timeout for Admin and Manager
 function checkSessionTimeout() {
+    // Only check timeout if session exists
+    if (!isset($_SESSION['userid']) || !isset($_SESSION['role'])) {
+        return false;
+    }
+    
     if (!isset($_SESSION['last_activity'])) {
         $_SESSION['last_activity'] = time();
         return true;
@@ -37,7 +42,7 @@ function checkSessionTimeout() {
     
     // Check if session has timed out
     if (time() - $_SESSION['last_activity'] > SESSION_TIMEOUT) {
-        if (isset($_SESSION['role']) && ($_SESSION['role'] == ROLE_ADMIN || $_SESSION['role'] == ROLE_MANAGER)) {
+        if ($_SESSION['role'] == ROLE_ADMIN || $_SESSION['role'] == ROLE_MANAGER) {
             // Clear session but don't redirect here (let requireRole handle it)
             session_unset();
             session_destroy();
@@ -556,23 +561,38 @@ function requireRole($allowedRoles) {
     // Session should already be started by config.php
     // Don't start it here to avoid "headers already sent" errors
     
+    // Get current path to prevent redirect loops
+    $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+    
     // Check if user is logged in
     if (!isLoggedIn()) {
-        header('Location: /');
-        exit;
+        // Only redirect if not already on login page
+        if ($currentPath != '/') {
+            header('Location: /');
+            exit;
+        }
+        return;
     }
     
     // Check session timeout first (may clear session)
     $sessionValid = checkSessionTimeout();
     if (!$sessionValid) {
-        header('Location: /');
-        exit;
+        // Only redirect if not already on login page
+        if ($currentPath != '/') {
+            header('Location: /');
+            exit;
+        }
+        return;
     }
     
     // Check if user has required role
     if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $allowedRoles)) {
-        header('Location: /');
-        exit;
+        // Only redirect if not already on login page
+        if ($currentPath != '/') {
+            header('Location: /');
+            exit;
+        }
+        return;
     }
 }
 ?>

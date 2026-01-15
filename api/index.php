@@ -17,7 +17,9 @@ if (empty($allUsers)) {
 }
 
 // If already logged in, redirect to appropriate page
-if (isLoggedIn()) {
+// But only if we're actually on the login page (not already redirected)
+$currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+if (isLoggedIn() && $currentPath == '/') {
     if ($_SESSION['role'] == ROLE_ADMIN) {
         header('Location: /admin.php');
     } elseif ($_SESSION['role'] == ROLE_MANAGER) {
@@ -49,14 +51,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['role'] = $user['role'];
                 $_SESSION['last_activity'] = time();
                 
-                if ($user['role'] == ROLE_ADMIN) {
-                    header('Location: /admin.php');
-                } elseif ($user['role'] == ROLE_MANAGER) {
-                    header('Location: /manager.php');
-                } else {
-                    header('Location: /employee.php');
+                // Redirect after successful login
+                $redirectUrl = '/admin.php';
+                if ($user['role'] == ROLE_MANAGER) {
+                    $redirectUrl = '/manager.php';
+                } elseif ($user['role'] == ROLE_EMPLOYEE) {
+                    $redirectUrl = '/employee.php';
                 }
-                exit;
+                
+                // Prevent redirect loop
+                $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+                if ($currentPath != $redirectUrl) {
+                    header('Location: ' . $redirectUrl);
+                    exit;
+                }
             }
         } else {
             $error = 'Invalid user ID or password';
