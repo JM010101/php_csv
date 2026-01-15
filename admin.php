@@ -287,6 +287,12 @@ if (isset($_GET['export'])) {
                     <?php if (!empty($filters['date_from']) && !empty($filters['date_to'])): ?>
                         <?php
                         $payrollRecords = getTimeRecords(['date_from' => $filters['date_from'], 'date_to' => $filters['date_to']]);
+                        // Sort by name, then by date
+                        usort($payrollRecords, function($a, $b) {
+                            $nameCompare = strcmp($a['name'], $b['name']);
+                            if ($nameCompare != 0) return $nameCompare;
+                            return strcmp($a['date'], $b['date']);
+                        });
                         $totals = [];
                         foreach ($payrollRecords as $record) {
                             if (!empty($record['hours'])) {
