@@ -44,11 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
                 // Update the current record
                 $records = getTimeRecords(['userid' => $userid]);
-                foreach ($records as $index => $record) {
+                foreach ($records as $record) {
                     if (empty($record['clockout_time']) && 
                         ($record['date'] == $clockoutDate || $record['date'] == date('Y-m-d', strtotime('-1 day')))) {
                         $hours = calculateHours($record['date'], $record['clockin_time'], $clockoutDate, $clockoutTime);
-                        updateTimeRecord($index, $record['userid'], $record['name'], $record['date'], 
+                        updateTimeRecord($record['userid'], $record['date'], $record['clockin_time'],
+                                       $record['userid'], $record['name'], $record['date'], 
                                        $record['clockin_time'], $clockoutTime, $hours);
                         break;
                     }

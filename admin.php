@@ -77,7 +77,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $messageType = 'success';
         }
     } elseif (isset($_POST['update_time_record'])) {
-        $index = $_POST['index'];
+        $oldUserid = $_POST['old_userid'];
+        $oldDate = $_POST['old_date'];
+        $oldClockin = $_POST['old_clockin'];
         $userid = strtolower(trim($_POST['userid']));
         $name = trim($_POST['name']);
         $date = $_POST['date'];
@@ -87,12 +89,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($clockout_time) {
             $hours = calculateHours($date, $clockin_time, $date, $clockout_time);
         }
-        updateTimeRecord($index, $userid, $name, $date, $clockin_time, $clockout_time, $hours);
+        updateTimeRecord($oldUserid, $oldDate, $oldClockin, $userid, $name, $date, $clockin_time, $clockout_time, $hours);
         $message = 'Time record updated successfully';
         $messageType = 'success';
     } elseif (isset($_POST['delete_time_record'])) {
-        $index = $_POST['index'];
-        deleteTimeRecord($index);
+        $userid = $_POST['userid'];
+        $date = $_POST['date'];
+        $clockin = $_POST['clockin'];
+        deleteTimeRecord($userid, $date, $clockin);
         $message = 'Time record deleted successfully';
         $messageType = 'success';
     }
@@ -199,10 +203,13 @@ if (isset($_GET['export'])) {
                                             <td><?php echo htmlspecialchars($record['clockout_time'] ?: 'N/A'); ?></td>
                                             <td><?php echo htmlspecialchars($record['hours'] ?: 'N/A'); ?></td>
                                             <td>
-                                                <button onclick="editTimeRecord(<?php echo $index; ?>, '<?php echo htmlspecialchars($record['userid'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($record['name'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($record['date']); ?>', '<?php echo htmlspecialchars($record['clockin_time']); ?>', '<?php echo htmlspecialchars($record['clockout_time']); ?>', '<?php echo htmlspecialchars($record['hours']); ?>')" class="btn btn-small">Edit</button>
+                                                <button onclick="editTimeRecord('<?php echo htmlspecialchars($record['userid'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($record['name'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($record['date']); ?>', '<?php echo htmlspecialchars($record['clockin_time']); ?>', '<?php echo htmlspecialchars($record['clockout_time']); ?>', '<?php echo htmlspecialchars($record['hours']); ?>')" class="btn btn-small">Edit</button>
                                                 <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this record?');">
-                                                    <input type="hidden" name="index" value="<?php echo $index; ?>">
-                                                    <button type="submit" name="delete_time_record" class="btn btn-small btn-danger">Delete</button>
+                                                    <input type="hidden" name="delete_time_record" value="1">
+                                                    <input type="hidden" name="userid" value="<?php echo htmlspecialchars($record['userid']); ?>">
+                                                    <input type="hidden" name="date" value="<?php echo htmlspecialchars($record['date']); ?>">
+                                                    <input type="hidden" name="clockin" value="<?php echo htmlspecialchars($record['clockin_time']); ?>">
+                                                    <button type="submit" class="btn btn-small btn-danger">Delete</button>
                                                 </form>
                                             </td>
                                         </tr>
@@ -518,7 +525,9 @@ if (isset($_GET['export'])) {
             <h2>Edit Time Record</h2>
             <form method="POST" action="">
                 <input type="hidden" name="update_time_record" value="1">
-                <input type="hidden" name="index" id="edit_time_index">
+                <input type="hidden" name="old_userid" id="edit_old_userid">
+                <input type="hidden" name="old_date" id="edit_old_date">
+                <input type="hidden" name="old_clockin" id="edit_old_clockin">
                 <div class="form-group">
                     <label>User ID:</label>
                     <input type="text" name="userid" id="edit_time_userid" required>
@@ -588,19 +597,24 @@ if (isset($_GET['export'])) {
             fetch('get_user.php?userid=' + encodeURIComponent(userid))
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('edit_old_userid').value = '';
-                    document.getElementById('edit_userid').value = '';
-                    document.getElementById('edit_name').value = data.name + ' (Copy)';
-                    document.getElementById('edit_role').value = data.role;
-                    document.getElementById('edit_ip1').value = data.ip1 || '';
-                    document.getElementById('edit_ip2').value = data.ip2 || '';
-                    document.getElementById('edit_ip3').value = data.ip3 || '';
-                    document.getElementById('edit_ip4').value = data.ip4 || '';
-                    document.getElementById('edit_ip5').value = data.ip5 || '';
-                    // Change form to add instead of update
-                    const form = document.querySelector('#editUserModal form');
-                    form.innerHTML = form.innerHTML.replace('update_user', 'add_user');
-                    document.getElementById('editUserModal').style.display = 'block';
+                    // Use add user modal instead
+                    document.querySelector('#addUserModal input[name="userid"]').value = '';
+                    document.querySelector('#addUserModal input[name="name"]').value = data.name + ' (Copy)';
+                    document.querySelector('#addUserModal select[name="role"]').value = data.role;
+                    document.querySelector('#addUserModal input[name="ip1"]').value = data.ip1 || '';
+                    document.querySelector('#addUserModal input[name="ip2"]').value = data.ip2 || '';
+                    document.querySelector('#addUserModal input[name="ip3"]').value = data.ip3 || '';
+                    document.querySelector('#addUserModal input[name="ip4"]').value = data.ip4 || '';
+                    document.querySelector('#addUserModal input[name="ip5"]').value = data.ip5 || '';
+                    document.getElementById('addUserModal').style.display = 'block';
+                    
+                    // Also clone schedule
+                    fetch('get_schedule.php?userid=' + encodeURIComponent(userid))
+                        .then(response => response.json())
+                        .then(schedule => {
+                            // Store schedule data for after user creation
+                            window.clonedSchedule = schedule;
+                        });
                 });
         }
         
@@ -608,13 +622,16 @@ if (isset($_GET['export'])) {
             document.getElementById('addTimeRecordModal').style.display = 'block';
         }
         
-        function editTimeRecord(index, userid, name, date, clockin, clockout, hours) {
-            document.getElementById('edit_time_index').value = index;
+        function editTimeRecord(userid, name, date, clockin, clockout, hours) {
             document.getElementById('edit_time_userid').value = userid;
             document.getElementById('edit_time_name').value = name;
             document.getElementById('edit_time_date').value = date;
             document.getElementById('edit_time_clockin').value = clockin;
             document.getElementById('edit_time_clockout').value = clockout || '';
+            // Store original values for update
+            document.getElementById('edit_old_userid').value = userid;
+            document.getElementById('edit_old_date').value = date;
+            document.getElementById('edit_old_clockin').value = clockin;
             document.getElementById('editTimeRecordModal').style.display = 'block';
         }
         

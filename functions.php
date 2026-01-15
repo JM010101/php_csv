@@ -282,48 +282,91 @@ function addTimeRecord($userid, $name, $date, $clockin_time, $clockout_time = ''
     fclose($fp);
 }
 
-// Update time record
-function updateTimeRecord($index, $userid, $name, $date, $clockin_time, $clockout_time, $hours) {
+// Update time record by unique identifier
+function updateTimeRecord($oldUserid, $oldDate, $oldClockin, $userid, $name, $date, $clockin_time, $clockout_time, $hours) {
+    $oldUserid = strtolower($oldUserid);
     $userid = strtolower($userid);
-    $records = getTimeRecords();
     
-    if (isset($records[$index])) {
-        $records[$index] = [
-            'userid' => $userid,
-            'name' => $name,
-            'date' => $date,
-            'clockin_time' => $clockin_time,
-            'clockout_time' => $clockout_time,
-            'hours' => $hours
-        ];
-        
-        $fp = fopen(TIMECLOCK_CSV, 'w');
-        fputcsv($fp, ['userid', 'name', 'date', 'clockin_time', 'clockout_time', 'hours']);
-        
-        foreach ($records as $record) {
-            fputcsv($fp, [$record['userid'], $record['name'], $record['date'], 
-                         $record['clockin_time'], $record['clockout_time'], $record['hours']]);
+    if (!file_exists(TIMECLOCK_CSV)) return;
+    
+    $records = [];
+    $fp = fopen(TIMECLOCK_CSV, 'r');
+    fgetcsv($fp); // Skip header
+    
+    while (($row = fgetcsv($fp)) !== FALSE) {
+        if (count($row) >= 6) {
+            // Check if this is the record to update
+            if (strtolower($row[0]) == $oldUserid && $row[2] == $oldDate && $row[3] == $oldClockin) {
+                $records[] = [
+                    'userid' => $userid,
+                    'name' => $name,
+                    'date' => $date,
+                    'clockin_time' => $clockin_time,
+                    'clockout_time' => $clockout_time,
+                    'hours' => $hours
+                ];
+            } else {
+                $records[] = [
+                    'userid' => $row[0],
+                    'name' => $row[1],
+                    'date' => $row[2],
+                    'clockin_time' => $row[3],
+                    'clockout_time' => $row[4],
+                    'hours' => $row[5]
+                ];
+            }
         }
-        fclose($fp);
     }
+    fclose($fp);
+    
+    // Write back
+    $fp = fopen(TIMECLOCK_CSV, 'w');
+    fputcsv($fp, ['userid', 'name', 'date', 'clockin_time', 'clockout_time', 'hours']);
+    
+    foreach ($records as $record) {
+        fputcsv($fp, [$record['userid'], $record['name'], $record['date'], 
+                     $record['clockin_time'], $record['clockout_time'], $record['hours']]);
+    }
+    fclose($fp);
 }
 
-// Delete time record
-function deleteTimeRecord($index) {
-    $records = getTimeRecords();
+// Delete time record by unique identifier
+function deleteTimeRecord($userid, $date, $clockin) {
+    $userid = strtolower($userid);
     
-    if (isset($records[$index])) {
-        unset($records[$index]);
-        
-        $fp = fopen(TIMECLOCK_CSV, 'w');
-        fputcsv($fp, ['userid', 'name', 'date', 'clockin_time', 'clockout_time', 'hours']);
-        
-        foreach ($records as $record) {
-            fputcsv($fp, [$record['userid'], $record['name'], $record['date'], 
-                         $record['clockin_time'], $record['clockout_time'], $record['hours']]);
+    if (!file_exists(TIMECLOCK_CSV)) return;
+    
+    $records = [];
+    $fp = fopen(TIMECLOCK_CSV, 'r');
+    fgetcsv($fp); // Skip header
+    
+    while (($row = fgetcsv($fp)) !== FALSE) {
+        if (count($row) >= 6) {
+            // Skip the record to delete
+            if (strtolower($row[0]) == $userid && $row[2] == $date && $row[3] == $clockin) {
+                continue;
+            }
+            $records[] = [
+                'userid' => $row[0],
+                'name' => $row[1],
+                'date' => $row[2],
+                'clockin_time' => $row[3],
+                'clockout_time' => $row[4],
+                'hours' => $row[5]
+            ];
         }
-        fclose($fp);
     }
+    fclose($fp);
+    
+    // Write back
+    $fp = fopen(TIMECLOCK_CSV, 'w');
+    fputcsv($fp, ['userid', 'name', 'date', 'clockin_time', 'clockout_time', 'hours']);
+    
+    foreach ($records as $record) {
+        fputcsv($fp, [$record['userid'], $record['name'], $record['date'], 
+                     $record['clockin_time'], $record['clockout_time'], $record['hours']]);
+    }
+    fclose($fp);
 }
 
 // Delete all time records for a user
