@@ -1,6 +1,21 @@
 <?php
 require_once 'functions.php';
 
+// Auto-create default admin if no users exist
+$allUsers = getAllUsers();
+if (empty($allUsers)) {
+    $defaultEmail = 'admin@timeclock.local';
+    $defaultPassword = '1234';
+    $defaultName = 'Administrator';
+    addUser($defaultEmail, $defaultPassword, $defaultName, ROLE_ADMIN, '', '', '', '', '');
+    $defaultCredentials = [
+        'email' => $defaultEmail,
+        'password' => $defaultPassword
+    ];
+} else {
+    $defaultCredentials = null;
+}
+
 // If already logged in, redirect to appropriate page
 if (isLoggedIn()) {
     if ($_SESSION['role'] == ROLE_ADMIN) {
@@ -65,6 +80,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             <?php if ($error): ?>
                 <div class="error"><?php echo htmlspecialchars($error); ?></div>
+            <?php endif; ?>
+            
+            <?php if ($defaultCredentials): ?>
+                <div class="message success" style="margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 10px;">Default Admin Credentials Created</h3>
+                    <p><strong>Email:</strong> <?php echo htmlspecialchars($defaultCredentials['email']); ?></p>
+                    <p><strong>Password:</strong> <?php echo htmlspecialchars($defaultCredentials['password']); ?></p>
+                    <p style="font-size: 0.9em; margin-top: 10px; color: #666;">Please login with these credentials and change the password for security.</p>
+                </div>
             <?php endif; ?>
             
             <form method="POST" action="">

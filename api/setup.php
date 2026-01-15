@@ -30,8 +30,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $messageType = 'error';
     } else {
         addUser($userid, $password, $name, ROLE_ADMIN, '', '', '', '', '');
-        $message = 'Admin user created successfully! You can now login.';
+        $message = 'Admin user created successfully!';
         $messageType = 'success';
+        $createdCredentials = [
+            'email' => $userid,
+            'password' => $password
+        ];
     }
 }
 ?>
@@ -55,7 +59,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
             <?php endif; ?>
             
-            <?php if ($messageType == 'success'): ?>
+            <?php if ($messageType == 'success' && isset($createdCredentials)): ?>
+                <div class="message success" style="margin-top: 20px;">
+                    <h3 style="margin-bottom: 10px;">Your Admin Credentials:</h3>
+                    <p><strong>Email:</strong> <?php echo htmlspecialchars($createdCredentials['email']); ?></p>
+                    <p><strong>Password:</strong> <?php echo htmlspecialchars($createdCredentials['password']); ?></p>
+                    <p style="font-size: 0.9em; margin-top: 10px; color: #666;">Please save these credentials. You can change the password after logging in.</p>
+                </div>
+                <p style="margin-top: 20px;"><a href="/" class="btn btn-primary">Go to Login</a></p>
+            <?php elseif ($messageType == 'success'): ?>
                 <p><a href="/" class="btn btn-primary">Go to Login</a></p>
             <?php else: ?>
                 <form method="POST" action="">

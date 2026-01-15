@@ -144,6 +144,26 @@ if (isset($_GET['export'])) {
             <h1>Admin Dashboard</h1>
             <p>Welcome, <?php echo htmlspecialchars($_SESSION['name']); ?></p>
             
+            <?php 
+            // Display first admin credentials if this is the default admin
+            $allUsers = getAllUsers();
+            $firstAdmin = null;
+            foreach ($allUsers as $user) {
+                if ($user['role'] == ROLE_ADMIN) {
+                    $firstAdmin = $user;
+                    break;
+                }
+            }
+            if ($firstAdmin && $firstAdmin['userid'] == 'admin@timeclock.local' && $firstAdmin['password'] == '1234'): 
+            ?>
+                <div class="message success" style="margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 10px;">Default Admin Credentials</h3>
+                    <p><strong>Email:</strong> <?php echo htmlspecialchars($firstAdmin['userid']); ?></p>
+                    <p><strong>Password:</strong> <?php echo htmlspecialchars($firstAdmin['password']); ?></p>
+                    <p style="font-size: 0.9em; margin-top: 10px; color: #666;">⚠️ Please change this password for security!</p>
+                </div>
+            <?php endif; ?>
+            
             <?php if ($message): ?>
                 <div class="message <?php echo $messageType; ?>">
                     <?php echo htmlspecialchars($message); ?>
