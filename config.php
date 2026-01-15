@@ -2,9 +2,14 @@
 // Configuration file
 session_start();
 
+// Determine if running on Vercel (serverless environment)
+$isVercel = isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']);
+$dataDir = $isVercel ? '/tmp/timeclock' : 'data';
+
 // CSV file paths
-define('USERS_CSV', 'data/users.csv');
-define('TIMECLOCK_CSV', 'data/timeclock.csv');
+define('DATA_DIR', $dataDir);
+define('USERS_CSV', $dataDir . '/users.csv');
+define('TIMECLOCK_CSV', $dataDir . '/timeclock.csv');
 
 // Session timeout (120 seconds = 2 minutes)
 define('SESSION_TIMEOUT', 120);
@@ -15,8 +20,14 @@ define('ROLE_MANAGER', 'Manager');
 define('ROLE_EMPLOYEE', 'Employee');
 
 // Create data directory if it doesn't exist
-if (!file_exists('data')) {
-    mkdir('data', 0777, true);
+if (!file_exists($dataDir)) {
+    mkdir($dataDir, 0777, true);
+}
+
+// Create schedules subdirectory
+$schedulesDir = $dataDir . '/schedules';
+if (!file_exists($schedulesDir)) {
+    mkdir($schedulesDir, 0777, true);
 }
 
 // Initialize CSV files with headers if they don't exist

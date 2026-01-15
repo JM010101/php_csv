@@ -144,8 +144,10 @@ function updateUser($oldUserid, $userid, $password, $name, $role, $ip1 = '', $ip
     
     // Update schedule file if userid changed
     if ($oldUserid != $userid) {
-        if (file_exists("data/schedules/{$oldUserid}.csv")) {
-            rename("data/schedules/{$oldUserid}.csv", "data/schedules/{$userid}.csv");
+        $oldScheduleFile = DATA_DIR . "/schedules/{$oldUserid}.csv";
+        $newScheduleFile = DATA_DIR . "/schedules/{$userid}.csv";
+        if (file_exists($oldScheduleFile)) {
+            rename($oldScheduleFile, $newScheduleFile);
         }
     }
 }
@@ -171,18 +173,20 @@ function deleteUser($userid) {
     deleteUserTimeRecords($userid);
     
     // Delete schedule file
-    if (file_exists("data/schedules/{$userid}.csv")) {
-        unlink("data/schedules/{$userid}.csv");
+    $scheduleFile = DATA_DIR . "/schedules/{$userid}.csv";
+    if (file_exists($scheduleFile)) {
+        unlink($scheduleFile);
     }
 }
 
 // Create user schedule file
 function createUserSchedule($userid) {
-    if (!file_exists('data/schedules')) {
-        mkdir('data/schedules', 0777, true);
+    $schedulesDir = DATA_DIR . '/schedules';
+    if (!file_exists($schedulesDir)) {
+        mkdir($schedulesDir, 0777, true);
     }
     
-    $scheduleFile = "data/schedules/{$userid}.csv";
+    $scheduleFile = $schedulesDir . "/{$userid}.csv";
     if (!file_exists($scheduleFile)) {
         $fp = fopen($scheduleFile, 'w');
         fputcsv($fp, ['day', 'clockin_from', 'clockin_to', 'clockout']);
@@ -198,7 +202,7 @@ function createUserSchedule($userid) {
 // Get user schedule
 function getUserSchedule($userid) {
     $userid = strtolower($userid);
-    $scheduleFile = "data/schedules/{$userid}.csv";
+    $scheduleFile = DATA_DIR . "/schedules/{$userid}.csv";
     
     if (!file_exists($scheduleFile)) {
         createUserSchedule($userid);
@@ -224,7 +228,7 @@ function getUserSchedule($userid) {
 // Update user schedule
 function updateUserSchedule($userid, $schedule) {
     $userid = strtolower($userid);
-    $scheduleFile = "data/schedules/{$userid}.csv";
+    $scheduleFile = DATA_DIR . "/schedules/{$userid}.csv";
     
     $fp = fopen($scheduleFile, 'w');
     fputcsv($fp, ['day', 'clockin_from', 'clockin_to', 'clockout']);
@@ -239,7 +243,13 @@ function updateUserSchedule($userid, $schedule) {
 
 // Get time records
 function getTimeRecords($filters = []) {
-    if (!file_exists(TIMECLOCK_CSV)) return [];
+    if (!file_exists(TIMECLOCK_CSV)) {
+        // Initialize if doesn't exist
+        $fp = fopen(TIMECLOCK_CSV, 'w');
+        fputcsv($fp, ['userid', 'name', 'date', 'clockin_time', 'clockout_time', 'hours']);
+        fclose($fp);
+        return [];
+    }
     
     $records = [];
     $fp = fopen(TIMECLOCK_CSV, 'r');
