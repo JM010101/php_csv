@@ -1,13 +1,47 @@
 {
   "functions": {
-    "**/*.php": {
+    "api/**/*.php": {
       "runtime": "@vercel/php@2.0.0"
     }
   },
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "src": "/",
+      "dest": "/api/index.php"
+    },
+    {
+      "src": "/setup.php",
+      "dest": "/api/setup.php"
+    },
+    {
+      "src": "/admin.php",
+      "dest": "/api/admin.php"
+    },
+    {
+      "src": "/employee.php",
+      "dest": "/api/employee.php"
+    },
+    {
+      "src": "/manager.php",
+      "dest": "/api/manager.php"
+    },
+    {
+      "src": "/logout.php",
+      "dest": "/api/logout.php"
+    },
+    {
+      "src": "/get_schedule.php",
+      "dest": "/api/get_schedule.php"
+    },
+    {
+      "src": "/get_user.php",
+      "dest": "/api/get_user.php"
+    },
+    {
+      "src": "/(.*\\.(css|js|jpg|jpeg|png|gif|ico|svg))",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      }
     }
   ]
 }

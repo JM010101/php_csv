@@ -136,7 +136,7 @@ if (isset($_GET['export'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <div class="container">
@@ -154,7 +154,7 @@ if (isset($_GET['export'])) {
                 <a href="?page=dashboard" class="<?php echo $page == 'dashboard' ? 'active' : ''; ?>">Time Records</a>
                 <a href="?page=users" class="<?php echo $page == 'users' ? 'active' : ''; ?>">Users</a>
                 <a href="?page=payroll" class="<?php echo $page == 'payroll' ? 'active' : ''; ?>">Payroll</a>
-                <a href="logout.php" class="logout-link">Logout</a>
+                <a href="/logout.php" class="logout-link">Logout</a>
             </div>
             
             <?php if ($page == 'dashboard'): ?>
@@ -583,7 +583,7 @@ if (isset($_GET['export'])) {
             <?php
             // We'll load schedule when modal opens
             ?>
-            fetch('get_schedule.php?userid=' + encodeURIComponent(userid))
+            fetch('/get_schedule.php?userid=' + encodeURIComponent(userid))
                 .then(response => response.json())
                 .then(data => {
                     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -600,7 +600,7 @@ if (isset($_GET['export'])) {
         }
         
         function cloneUser(userid) {
-            fetch('get_user.php?userid=' + encodeURIComponent(userid))
+            fetch('/get_user.php?userid=' + encodeURIComponent(userid))
                 .then(response => response.json())
                 .then(data => {
                     // Use add user modal instead
@@ -615,7 +615,7 @@ if (isset($_GET['export'])) {
                     document.getElementById('addUserModal').style.display = 'block';
                     
                     // Also clone schedule
-                    fetch('get_schedule.php?userid=' + encodeURIComponent(userid))
+                    fetch('/get_schedule.php?userid=' + encodeURIComponent(userid))
                         .then(response => response.json())
                         .then(schedule => {
                             // Store schedule data for after user creation

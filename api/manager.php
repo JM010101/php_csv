@@ -10,7 +10,7 @@ $clockedInEmployees = getClockedInEmployees();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manager - Clocked In Employees</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <div class="container">
@@ -19,7 +19,7 @@ $clockedInEmployees = getClockedInEmployees();
             <h2>Workers Currently Clocked In</h2>
             
             <div class="header-actions">
-                <a href="logout.php" class="btn btn-secondary">Logout</a>
+                <a href="/logout.php" class="btn btn-secondary">Logout</a>
             </div>
             
             <div class="table-container">

@@ -523,19 +523,19 @@ function getClockedInEmployees() {
 function logout() {
     session_unset();
     session_destroy();
-    header('Location: index.php');
+    header('Location: /');
     exit;
 }
 
 // Require specific role
 function requireRole($allowedRoles) {
     if (!isLoggedIn()) {
-        header('Location: index.php');
+        header('Location: /');
         exit;
     }
     
     if (!in_array($_SESSION['role'], $allowedRoles)) {
-        header('Location: index.php');
+        header('Location: /');
         exit;
     }
     

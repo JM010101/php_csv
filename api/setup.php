@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $messageType = 'error';
     } else {
         addUser($userid, $password, $name, ROLE_ADMIN, '', '', '', '', '');
-        $message = 'Admin user created successfully! You can now login at index.php';
+        $message = 'Admin user created successfully! You can now login.';
         $messageType = 'success';
     }
 }
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Setup - Create Admin User</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <div class="container">
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <?php endif; ?>
             
             <?php if ($messageType == 'success'): ?>
-                <p><a href="index.php" class="btn btn-primary">Go to Login</a></p>
+                <p><a href="/" class="btn btn-primary">Go to Login</a></p>
             <?php else: ?>
                 <form method="POST" action="">
                     <div class="form-group">

@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $clockedIn = true;
                 
                 // Auto logout after 5 seconds
-                header("refresh:5;url=logout.php");
+                header("refresh:5;url=/logout.php");
             } else {
                 $message = $canClockIn['message'];
                 $messageType = 'error';
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $clockedIn = false;
                 
                 // Auto logout after 5 seconds
-                header("refresh:5;url=logout.php");
+                header("refresh:5;url=/logout.php");
             } else {
                 $message = $canClockOut['message'];
                 $messageType = 'error';
@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Time Clock</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <div class="container">
@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </form>
             
             <div class="logout-link">
-                <a href="logout.php">Logout</a>
+                <a href="/logout.php">Logout</a>
             </div>
         </div>
     </div>

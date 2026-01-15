@@ -4,11 +4,11 @@ require_once 'functions.php';
 // If already logged in, redirect to appropriate page
 if (isLoggedIn()) {
     if ($_SESSION['role'] == ROLE_ADMIN) {
-        header('Location: admin.php');
+        header('Location: /admin.php');
     } elseif ($_SESSION['role'] == ROLE_MANAGER) {
-        header('Location: manager.php');
+        header('Location: /manager.php');
     } else {
-        header('Location: employee.php');
+        header('Location: /employee.php');
     }
     exit;
 }
@@ -35,11 +35,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['last_activity'] = time();
                 
                 if ($user['role'] == ROLE_ADMIN) {
-                    header('Location: admin.php');
+                    header('Location: /admin.php');
                 } elseif ($user['role'] == ROLE_MANAGER) {
-                    header('Location: manager.php');
+                    header('Location: /manager.php');
                 } else {
-                    header('Location: employee.php');
+                    header('Location: /employee.php');
                 }
                 exit;
             }
@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Time Clock - Login</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <div class="container">
