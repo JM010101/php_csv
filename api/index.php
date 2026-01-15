@@ -17,17 +17,21 @@ if (empty($allUsers)) {
 }
 
 // If already logged in, redirect to appropriate page
-// But only if we're actually on the login page (not already redirected)
+// But only if we're actually on the login page (not already redirected) and there's no error
 $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-if (isLoggedIn() && $currentPath == '/') {
-    if ($_SESSION['role'] == ROLE_ADMIN) {
-        header('Location: /admin.php');
-    } elseif ($_SESSION['role'] == ROLE_MANAGER) {
-        header('Location: /manager.php');
-    } else {
-        header('Location: /employee.php');
+$hasError = isset($_GET['error']);
+if (isLoggedIn() && $currentPath == '/' && !$hasError) {
+    // Double-check session is valid before redirecting
+    if (isset($_SESSION['role'])) {
+        if ($_SESSION['role'] == ROLE_ADMIN) {
+            header('Location: /admin.php');
+        } elseif ($_SESSION['role'] == ROLE_MANAGER) {
+            header('Location: /manager.php');
+        } else {
+            header('Location: /employee.php');
+        }
+        exit;
     }
-    exit;
 }
 
 $error = '';
@@ -86,7 +90,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <h1>Time Clock System</h1>
             <h2>Login</h2>
             
-            <?php if ($error): ?>
+            <?php 
+            // Show error from query string if present
+            if (isset($_GET['error'])) {
+                $errorMsg = '';
+                switch($_GET['error']) {
+                    case 'not_logged_in':
+                        $errorMsg = 'Please log in to access that page.';
+                        break;
+                    case 'invalid_role':
+                        $errorMsg = 'You do not have permission to access that page.';
+                        break;
+                    case 'session_expired':
+                        $errorMsg = 'Your session has expired. Please log in again.';
+                        break;
+                    default:
+                        $errorMsg = 'An error occurred. Please try again.';
+                }
+                if ($errorMsg) {
+                    echo '<div class="error">' . htmlspecialchars($errorMsg) . '</div>';
+                }
+            }
+            
+            if ($error): ?>
                 <div class="error"><?php echo htmlspecialchars($error); ?></div>
             <?php endif; ?>
             

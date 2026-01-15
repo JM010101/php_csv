@@ -11,7 +11,24 @@ if (!defined('ROLE_ADMIN')) {
     die('Error: ROLE_ADMIN constant not defined. Check config.php');
 }
 
-requireRole([ROLE_ADMIN]);
+// Check authentication - do this inline to avoid redirect loops
+if (!isLoggedIn()) {
+    header('Location: /?error=not_logged_in');
+    exit;
+}
+
+// Check role
+if (!isset($_SESSION['role']) || $_SESSION['role'] != ROLE_ADMIN) {
+    header('Location: /?error=invalid_role');
+    exit;
+}
+
+// Check session timeout
+$sessionValid = checkSessionTimeout();
+if (!$sessionValid) {
+    header('Location: /?error=session_expired');
+    exit;
+}
 
 $page = $_GET['page'] ?? 'dashboard';
 $message = '';
