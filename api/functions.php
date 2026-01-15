@@ -23,10 +23,8 @@ function getClientIP() {
 
 // Check if user is logged in
 function isLoggedIn() {
-    // Ensure session is started
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+    // Session should already be started by config.php
+    // Don't start it here to avoid "headers already sent" errors
     return isset($_SESSION['userid']) && isset($_SESSION['role']);
 }
 
@@ -555,10 +553,8 @@ function logout() {
 
 // Require specific role
 function requireRole($allowedRoles) {
-    // Ensure session is started
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+    // Session should already be started by config.php
+    // Don't start it here to avoid "headers already sent" errors
     
     // Check if user is logged in
     if (!isLoggedIn()) {

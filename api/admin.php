@@ -4,9 +4,6 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 
-// Test if page is loading
-echo "<!-- Admin page loading -->\n";
-
 require_once 'functions.php';
 
 // Check if constants are defined
