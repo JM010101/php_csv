@@ -1,4 +1,8 @@
 <?php
+// Enable error reporting for debugging (remove in production)
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 require_once 'functions.php';
 requireRole([ROLE_ADMIN]);
 
@@ -162,7 +166,12 @@ if (isset($_GET['export'])) {
                     <p><strong>Password:</strong> <?php echo htmlspecialchars($firstAdmin['password']); ?></p>
                     <p style="font-size: 0.9em; margin-top: 10px; color: #666;">⚠️ Please change this password for security!</p>
                 </div>
-            <?php endif; ?>
+            <?php 
+                endif;
+            } catch (Exception $e) {
+                // Silently fail if there's an error getting users
+            }
+            ?>
             
             <?php if ($message): ?>
                 <div class="message <?php echo $messageType; ?>">

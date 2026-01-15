@@ -97,19 +97,34 @@ function getUser($userid) {
 
 // Get all users
 function getAllUsers() {
-    if (!file_exists(USERS_CSV)) return [];
+    if (!file_exists(USERS_CSV)) {
+        // Initialize file if it doesn't exist
+        $fp = fopen(USERS_CSV, 'w');
+        fputcsv($fp, ['userid', 'password', 'name', 'role', 'ip1', 'ip2', 'ip3', 'ip4', 'ip5']);
+        fclose($fp);
+        return [];
+    }
     
     $users = [];
-    $fp = fopen(USERS_CSV, 'r');
-    fgetcsv($fp); // Skip header
+    $fp = @fopen(USERS_CSV, 'r');
+    if ($fp === false) {
+        return [];
+    }
+    
+    // Skip header
+    $header = fgetcsv($fp);
+    if ($header === false) {
+        fclose($fp);
+        return [];
+    }
     
     while (($row = fgetcsv($fp)) !== FALSE) {
         if (count($row) >= 4) {
             $users[] = [
-                'userid' => $row[0],
-                'password' => $row[1],
-                'name' => $row[2],
-                'role' => $row[3],
+                'userid' => $row[0] ?? '',
+                'password' => $row[1] ?? '',
+                'name' => $row[2] ?? '',
+                'role' => $row[3] ?? '',
                 'ip1' => $row[4] ?? '',
                 'ip2' => $row[5] ?? '',
                 'ip3' => $row[6] ?? '',
